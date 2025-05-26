@@ -38,18 +38,6 @@
       "languageVersion": "3.1"
     },
     {
-      "name": "device_info_plus",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus-9.1.2",
-      "packageUri": "lib/",
-      "languageVersion": "2.18"
-    },
-    {
-      "name": "device_info_plus_platform_interface",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus_platform_interface-7.0.2",
-      "packageUri": "lib/",
-      "languageVersion": "2.18"
-    },
-    {
       "name": "fake_async",
       "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/fake_async-1.3.2",
       "packageUri": "lib/",
@@ -90,18 +78,6 @@
       "rootUri": "file:///C:/flutter/packages/flutter_web_plugins",
       "packageUri": "lib/",
       "languageVersion": "3.7"
-    },
-    {
-      "name": "http",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/http-1.4.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
-      "name": "http_parser",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/http_parser-4.1.2",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
     },
     {
       "name": "leak_tracker",
@@ -266,12 +242,6 @@
       "languageVersion": "3.5"
     },
     {
-      "name": "typed_data",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/typed_data-1.4.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.5"
-    },
-    {
       "name": "unity_ads_plugin",
       "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/unity_ads_plugin-0.3.24",
       "packageUri": "lib/",
@@ -296,18 +266,6 @@
       "languageVersion": "3.4"
     },
     {
-      "name": "win32",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/win32-5.13.0",
-      "packageUri": "lib/",
-      "languageVersion": "3.7"
-    },
-    {
-      "name": "win32_registry",
-      "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/win32_registry-1.1.5",
-      "packageUri": "lib/",
-      "languageVersion": "3.4"
-    },
-    {
       "name": "xdg_directories",
       "rootUri": "file:///C:/Users/banav/AppData/Local/Pub/Cache/hosted/pub.dev/xdg_directories-1.1.0",
       "packageUri": "lib/",
@@ -317,10 +275,10 @@
       "name": "tap_to_paid",
       "rootUri": "../",
       "packageUri": "lib/",
-      "languageVersion": "2.19"
+      "languageVersion": "3.0"
     }
   ],
-  "generated": "2025-05-24T08:12:58.998300Z",
+  "generated": "2025-05-26T17:25:31.963470Z",
   "generator": "pub",
   "generatorVersion": "3.7.2",
   "flutterRoot": "file:///C:/flutter",
