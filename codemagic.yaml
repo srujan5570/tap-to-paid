@@ -7,9 +7,13 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      vars:
+        XCODE_WORKSPACE: "Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
+        BUNDLE_ID: "com.example.tap-to-paid"
       ios_signing:
         distribution_type: development
-        bundle_identifier: com.example.tapToPaid
+        bundle_identifier: com.example.tap-to-paid
     cache:
       cache_paths:
         - ~/.pub-cache
@@ -23,13 +27,23 @@ workflows:
         script: |
           flutter clean
           flutter pub get
-      - name: Install pods
+      - name: Pod install
         script: |
           cd ios
+          pod repo update
           pod install
-      - name: Build iOS app
+      - name: Set up code signing
+        script: |
+          xcode-project use-profiles
+      - name: Flutter build iOS
         script: |
           flutter build ios --release --no-codesign
+      - name: Xcode build
+        script: |
+          cd ios
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
     artifacts:
       - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
