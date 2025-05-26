@@ -27,11 +27,9 @@ workflows:
       - name: Build iOS
         script: |
           cd tap_to_paid
-          flutter build ipa --release
+          flutter build ipa --release --export-method ad-hoc
     artifacts:
-      - tap_to_paid/build/ios/**/*.ipa
-      - /tmp/xcodebuild_logs/*.log
-      - tap_to_paid/build/ios/archive/*.xcarchive
+      - tap_to_paid/build/ios/ipa/*.ipa
     publishing:
       email:
         recipients:
