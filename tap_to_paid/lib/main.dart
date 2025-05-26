@@ -18,10 +18,10 @@ void main() async {
 
   // Initialize Unity Ads directly
   await UnityAds.init(
-    gameId: initialGameId,
-    testMode: false,
+    gameId: '5859176', // Updated to iOS Game ID
+    testMode: true, // Set to true for testing
     onComplete: () {
-      print('Unity Ads Initialization Complete with Game ID: $initialGameId');
+      print('Unity Ads Initialization Complete');
     },
     onFailed: (error, message) {
       print('Unity Ads Initialization Failed: $error $message');
@@ -357,18 +357,17 @@ class _AdScreenState extends State<AdScreen> {
         ),
       );
 
-      // Reinitialize Unity with new device info
-      await _reinitializeUnityAds();
-
       // Load the ad
       await UnityAds.load(
-        placementId: placementId,
+        placementId: placementId == 'Rewarded_Android'
+            ? 'Rewarded_iOS'
+            : 'Interstitial_iOS', // Updated placement IDs for iOS
         onComplete: (placementId) {
           print('Ad loaded successfully: $placementId');
           setState(() {
             _isLoadingAd = false;
             _currentlyLoadingAdType = '';
-            if (placementId == 'Rewarded_Android') {
+            if (placementId == 'Rewarded_iOS') {
               _isRewardedAdReady = true;
             } else {
               _isInterstitialAdReady = true;
@@ -386,7 +385,7 @@ class _AdScreenState extends State<AdScreen> {
           setState(() {
             _isLoadingAd = false;
             _currentlyLoadingAdType = '';
-            if (placementId == 'Rewarded_Android') {
+            if (placementId == 'Rewarded_iOS') {
               _isRewardedAdReady = false;
             } else {
               _isInterstitialAdReady = false;
@@ -405,7 +404,7 @@ class _AdScreenState extends State<AdScreen> {
       setState(() {
         _isLoadingAd = false;
         _currentlyLoadingAdType = '';
-        if (placementId == 'Rewarded_Android') {
+        if (placementId == 'Rewarded_iOS') {
           _isRewardedAdReady = false;
         } else {
           _isInterstitialAdReady = false;
@@ -417,19 +416,20 @@ class _AdScreenState extends State<AdScreen> {
   Future<void> _showAd(String placementId) async {
     try {
       await UnityAds.showVideoAd(
-        placementId: placementId,
+        placementId: placementId == 'Rewarded_Android'
+            ? 'Rewarded_iOS'
+            : 'Interstitial_iOS', // Updated placement IDs for iOS
         onStart: (placementId) => print('Ad $placementId started'),
         onClick: (placementId) => print('Ad $placementId click'),
         onSkipped: (placementId) async {
           print('Ad $placementId skipped');
           setState(() {
-            if (placementId == 'Rewarded_Android') {
+            if (placementId == 'Rewarded_iOS') {
               _isRewardedAdReady = false;
             } else {
               _isInterstitialAdReady = false;
             }
           });
-          // Don't mark ID as used if ad was skipped
           await _loadNextGameId();
         },
         onComplete: (placementId) async {
@@ -437,7 +437,7 @@ class _AdScreenState extends State<AdScreen> {
           await AdvertisingService.incrementAdsCount();
           setState(() {
             totalAdsPlayed++;
-            if (placementId == 'Rewarded_Android') {
+            if (placementId == 'Rewarded_iOS') {
               _isRewardedAdReady = false;
             } else {
               _isInterstitialAdReady = false;
@@ -446,12 +446,12 @@ class _AdScreenState extends State<AdScreen> {
           _updateAdsPlayedRecord();
           _loadAdInfo();
           _saveData();
-          await _onAdComplete(); // Mark ID as used only on successful completion
+          await _onAdComplete();
         },
         onFailed: (placementId, error, message) async {
           print('Ad $placementId failed: $error $message');
           setState(() {
-            if (placementId == 'Rewarded_Android') {
+            if (placementId == 'Rewarded_iOS') {
               _isRewardedAdReady = false;
             } else {
               _isInterstitialAdReady = false;
@@ -463,20 +463,18 @@ class _AdScreenState extends State<AdScreen> {
               backgroundColor: Colors.red,
             ),
           );
-          // Don't mark ID as used if ad failed
           await _loadNextGameId();
         },
       );
     } catch (e) {
       print('Error showing ad: $e');
       setState(() {
-        if (placementId == 'Rewarded_Android') {
+        if (placementId == 'Rewarded_iOS') {
           _isRewardedAdReady = false;
         } else {
           _isInterstitialAdReady = false;
         }
       });
-      // Don't mark ID as used if there was an error
       await _loadNextGameId();
     }
   }

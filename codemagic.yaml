@@ -4,12 +4,6 @@ workflows:
     instance_type: mac_mini_m1
     max_build_duration: 60
     environment:
-      ios_signing:
-        distribution_type: development
-        bundle_identifier: com.taptopaid.app
-      vars:
-        XCODE_WORKSPACE: "Runner.xcworkspace"
-        XCODE_SCHEME: "Runner"
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -25,14 +19,13 @@ workflows:
       - name: Install pods
         script: |
           find . -name "Podfile" -execdir pod install \;
-      - name: Flutter build ipa
+      - name: Build unsigned iOS app
         script: |
-          flutter build ios --release --no-codesign
+          cd tap_to_paid
+          flutter build ios --debug --no-codesign
     artifacts:
-      - build/ios/ipa/*.ipa
-      - build/ios/xcarchive/*.xcarchive
+      - tap_to_paid/build/ios/iphonesimulator/*.app
       - /tmp/xcodebuild_logs/*.log
-      - flutter_drive.log
     publishing:
       email:
         recipients:
