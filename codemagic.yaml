@@ -14,17 +14,19 @@ workflows:
     scripts:
       - name: Get Flutter packages
         script: |
+          cd tap_to_paid
           flutter clean
           flutter pub get
       - name: Install pods
         script: |
-          cd ios
+          cd tap_to_paid/ios
           pod install
       - name: Build iOS for simulator
         script: |
+          cd tap_to_paid
           flutter build ios --debug --no-codesign --simulator
     artifacts:
-      - build/ios/iphonesimulator/*.app
+      - tap_to_paid/build/ios/iphonesimulator/*.app
     publishing:
       email:
         recipients:
