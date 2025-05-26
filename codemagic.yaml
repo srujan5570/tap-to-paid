@@ -9,7 +9,7 @@ workflows:
       cocoapods: default
       ios_signing:
         distribution_type: development
-        bundle_identifier: com.taptopaid.app
+        bundle_identifier: com.example.tapToPaid
     cache:
       cache_paths:
         - ~/.pub-cache
