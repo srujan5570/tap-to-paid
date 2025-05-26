@@ -2,31 +2,43 @@ workflows:
   ios-workflow:
     name: iOS Workflow
     instance_type: mac_mini_m1
-    max_build_duration: 60
+    max_build_duration: 120
     environment:
       flutter: stable
       xcode: latest
       cocoapods: default
+      ios_signing:
+        distribution_type: development
+        bundle_identifier: com.taptopaid.app
     cache:
       cache_paths:
         - ~/.pub-cache
         - vendor/bundle
     scripts:
+      - name: Set up code signing settings
+        script: |
+          echo "Setting up code signing"
+          keychain initialize
       - name: Get Flutter packages
         script: |
           flutter clean
           flutter pub get
       - name: Install pods
         script: |
-          find . -name "Podfile" -execdir pod install \;
-      - name: Build unsigned iOS app
+          cd ios
+          pod install
+      - name: Build iOS app
         script: |
-          cd tap_to_paid
-          flutter build ios --debug --no-codesign
+          flutter build ios --release --no-codesign
     artifacts:
-      - tap_to_paid/build/ios/iphonesimulator/*.app
+      - build/ios/ipa/*.ipa
       - /tmp/xcodebuild_logs/*.log
+      - build/ios/archive/*.xcarchive
     publishing:
       email:
         recipients:
-          - bt21cse102@iiitn.ac.in # Updated with your email 
+          - bt21cse102@iiitn.ac.in
+      app_store_connect:
+        api_key: $APP_STORE_CONNECT_PRIVATE_KEY
+        key_id: $APP_STORE_CONNECT_KEY_IDENTIFIER
+        issuer_id: $APP_STORE_CONNECT_ISSUER_ID 

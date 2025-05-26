@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'dart:math';
+import 'dart:io';
 import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
@@ -8,6 +9,7 @@ import 'dart:convert';
 import 'services/advertising_service.dart';
 import 'services/game_id_service.dart';
 import 'services/virtual_device_service.dart';
+import 'package:flutter/foundation.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -18,8 +20,10 @@ void main() async {
 
   // Initialize Unity Ads directly
   await UnityAds.init(
-    gameId: '5859176', // Updated to iOS Game ID
-    testMode: true, // Set to true for testing
+    gameId: Platform.isIOS
+        ? '5859176'
+        : '5850242', // iOS Game ID from Unity dashboard
+    testMode: false, // Set to false for production/real ads
     onComplete: () {
       print('Unity Ads Initialization Complete');
     },
@@ -357,11 +361,15 @@ class _AdScreenState extends State<AdScreen> {
         ),
       );
 
-      // Load the ad
+      // Load the ad with platform-specific placement IDs
+      final String adPlacementId = Platform.isIOS
+          ? (placementId == 'Rewarded_Android'
+              ? 'Rewarded_iOS'
+              : 'Interstitial_iOS')
+          : placementId;
+
       await UnityAds.load(
-        placementId: placementId == 'Rewarded_Android'
-            ? 'Rewarded_iOS'
-            : 'Interstitial_iOS', // Updated placement IDs for iOS
+        placementId: adPlacementId,
         onComplete: (placementId) {
           print('Ad loaded successfully: $placementId');
           setState(() {
@@ -416,9 +424,11 @@ class _AdScreenState extends State<AdScreen> {
   Future<void> _showAd(String placementId) async {
     try {
       await UnityAds.showVideoAd(
-        placementId: placementId == 'Rewarded_Android'
-            ? 'Rewarded_iOS'
-            : 'Interstitial_iOS', // Updated placement IDs for iOS
+        placementId: Platform.isIOS
+            ? (placementId == 'Rewarded_Android'
+                ? 'Rewarded_iOS'
+                : 'Interstitial_iOS')
+            : placementId,
         onStart: (placementId) => print('Ad $placementId started'),
         onClick: (placementId) => print('Ad $placementId click'),
         onSkipped: (placementId) async {
