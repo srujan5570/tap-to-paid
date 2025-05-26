@@ -7,6 +7,9 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
+      vars:
+        XCODE_WORKSPACE: "Runner.xcworkspace"
+        XCODE_SCHEME: "Runner"
     cache:
       cache_paths:
         - ~/.pub-cache
@@ -21,12 +24,14 @@ workflows:
         script: |
           cd tap_to_paid/ios
           pod install
-      - name: Build iOS for simulator
+      - name: Build iOS
         script: |
           cd tap_to_paid
-          flutter build ios --debug --no-codesign --simulator
+          flutter build ipa --release
     artifacts:
-      - tap_to_paid/build/ios/iphonesimulator/*.app
+      - tap_to_paid/build/ios/**/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - tap_to_paid/build/ios/archive/*.xcarchive
     publishing:
       email:
         recipients:
