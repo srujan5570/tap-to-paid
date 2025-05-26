@@ -10,11 +10,6 @@ workflows:
       vars:
         XCODE_WORKSPACE: "Runner.xcworkspace"
         XCODE_SCHEME: "Runner"
-        BUNDLE_ID: "com.taptopaid.app"
-        APP_STORE_CONNECT_ISSUER_ID: # Get from App Store Connect API Key
-        APP_STORE_CONNECT_KEY_IDENTIFIER: # Get from App Store Connect API Key
-        APP_STORE_CONNECT_PRIVATE_KEY: # Get from App Store Connect API Key
-        CERTIFICATE_PRIVATE_KEY: # Get from Apple Developer Portal
       flutter: stable
       xcode: latest
       cocoapods: default
@@ -23,17 +18,6 @@ workflows:
         - ~/.pub-cache
         - vendor/bundle
     scripts:
-      - name: Set up keychain to be used for code signing using Codemagic CLI 'keychain' command
-        script: |
-          keychain initialize
-      - name: Fetch signing files
-        script: |
-          app-store-connect fetch-signing-files $(BUNDLE_ID) \
-            --type IOS_APP_DEVELOPMENT \
-            --create
-      - name: Set up code signing settings on Xcode project
-        script: |
-          xcode-project use-profiles
       - name: Get Flutter packages
         script: |
           flutter clean
@@ -43,10 +27,10 @@ workflows:
           find . -name "Podfile" -execdir pod install \;
       - name: Flutter build ipa
         script: |
-          flutter build ipa --release \
-            --export-options-plist=/Users/builder/export_options.plist
+          flutter build ios --release --no-codesign
     artifacts:
       - build/ios/ipa/*.ipa
+      - build/ios/xcarchive/*.xcarchive
       - /tmp/xcodebuild_logs/*.log
       - flutter_drive.log
     publishing:
