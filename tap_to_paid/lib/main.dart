@@ -18,12 +18,10 @@ void main() async {
   await GameIdService.initializeGameIds();
   final initialGameId = await GameIdService.getNextGameId();
 
-  // Initialize Unity Ads directly
+  // Initialize Unity Ads with platform-specific Game ID
   await UnityAds.init(
-    gameId: Platform.isIOS
-        ? '5859176'
-        : '5850242', // iOS Game ID from Unity dashboard
-    testMode: false, // Set to false for production/real ads
+    gameId: Platform.isIOS ? '5859176' : '5850242',
+    testMode: false,
     onComplete: () {
       print('Unity Ads Initialization Complete');
     },
@@ -349,19 +347,15 @@ class _AdScreenState extends State<AdScreen> {
     });
 
     try {
-      // Clear Unity cache and rotate virtual device info before loading
-      await VirtualDeviceService.clearUnityCache();
-      await _rotateVirtualDeviceInfo();
-
       // Show loading indicator
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Loading ad with fresh device info...'),
+          content: Text('Loading ad...'),
           duration: Duration(seconds: 2),
         ),
       );
 
-      // Load the ad with platform-specific placement IDs
+      // Get the correct placement ID based on platform
       final String adPlacementId = Platform.isIOS
           ? (placementId == 'Rewarded_Android'
               ? 'Rewarded_iOS'
@@ -375,10 +369,18 @@ class _AdScreenState extends State<AdScreen> {
           setState(() {
             _isLoadingAd = false;
             _currentlyLoadingAdType = '';
-            if (placementId == 'Rewarded_iOS') {
-              _isRewardedAdReady = true;
+            if (Platform.isIOS) {
+              if (placementId == 'Rewarded_iOS') {
+                _isRewardedAdReady = true;
+              } else {
+                _isInterstitialAdReady = true;
+              }
             } else {
-              _isInterstitialAdReady = true;
+              if (placementId == 'Rewarded_Android') {
+                _isRewardedAdReady = true;
+              } else {
+                _isInterstitialAdReady = true;
+              }
             }
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -393,10 +395,18 @@ class _AdScreenState extends State<AdScreen> {
           setState(() {
             _isLoadingAd = false;
             _currentlyLoadingAdType = '';
-            if (placementId == 'Rewarded_iOS') {
-              _isRewardedAdReady = false;
+            if (Platform.isIOS) {
+              if (placementId == 'Rewarded_iOS') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             } else {
-              _isInterstitialAdReady = false;
+              if (placementId == 'Rewarded_Android') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             }
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -412,59 +422,78 @@ class _AdScreenState extends State<AdScreen> {
       setState(() {
         _isLoadingAd = false;
         _currentlyLoadingAdType = '';
-        if (placementId == 'Rewarded_iOS') {
-          _isRewardedAdReady = false;
-        } else {
-          _isInterstitialAdReady = false;
-        }
       });
     }
   }
 
   Future<void> _showAd(String placementId) async {
     try {
+      final String adPlacementId = Platform.isIOS
+          ? (placementId == 'Rewarded_Android'
+              ? 'Rewarded_iOS'
+              : 'Interstitial_iOS')
+          : placementId;
+
       await UnityAds.showVideoAd(
-        placementId: Platform.isIOS
-            ? (placementId == 'Rewarded_Android'
-                ? 'Rewarded_iOS'
-                : 'Interstitial_iOS')
-            : placementId,
+        placementId: adPlacementId,
         onStart: (placementId) => print('Ad $placementId started'),
         onClick: (placementId) => print('Ad $placementId click'),
         onSkipped: (placementId) async {
           print('Ad $placementId skipped');
           setState(() {
-            if (placementId == 'Rewarded_iOS') {
-              _isRewardedAdReady = false;
+            if (Platform.isIOS) {
+              if (placementId == 'Rewarded_iOS') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             } else {
-              _isInterstitialAdReady = false;
+              if (placementId == 'Rewarded_Android') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             }
           });
-          await _loadNextGameId();
+          await _loadAd(placementId);
         },
         onComplete: (placementId) async {
           print('Ad $placementId completed');
-          await AdvertisingService.incrementAdsCount();
           setState(() {
             totalAdsPlayed++;
-            if (placementId == 'Rewarded_iOS') {
-              _isRewardedAdReady = false;
+            if (Platform.isIOS) {
+              if (placementId == 'Rewarded_iOS') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             } else {
-              _isInterstitialAdReady = false;
+              if (placementId == 'Rewarded_Android') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             }
           });
           _updateAdsPlayedRecord();
-          _loadAdInfo();
           _saveData();
-          await _onAdComplete();
+          await _loadAd(placementId);
         },
         onFailed: (placementId, error, message) async {
           print('Ad $placementId failed: $error $message');
           setState(() {
-            if (placementId == 'Rewarded_iOS') {
-              _isRewardedAdReady = false;
+            if (Platform.isIOS) {
+              if (placementId == 'Rewarded_iOS') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             } else {
-              _isInterstitialAdReady = false;
+              if (placementId == 'Rewarded_Android') {
+                _isRewardedAdReady = false;
+              } else {
+                _isInterstitialAdReady = false;
+              }
             }
           });
           ScaffoldMessenger.of(context).showSnackBar(
@@ -473,19 +502,27 @@ class _AdScreenState extends State<AdScreen> {
               backgroundColor: Colors.red,
             ),
           );
-          await _loadNextGameId();
+          await _loadAd(placementId);
         },
       );
     } catch (e) {
       print('Error showing ad: $e');
       setState(() {
-        if (placementId == 'Rewarded_iOS') {
-          _isRewardedAdReady = false;
+        if (Platform.isIOS) {
+          if (placementId == 'Rewarded_iOS') {
+            _isRewardedAdReady = false;
+          } else {
+            _isInterstitialAdReady = false;
+          }
         } else {
-          _isInterstitialAdReady = false;
+          if (placementId == 'Rewarded_Android') {
+            _isRewardedAdReady = false;
+          } else {
+            _isInterstitialAdReady = false;
+          }
         }
       });
-      await _loadNextGameId();
+      await _loadAd(placementId);
     }
   }
 
